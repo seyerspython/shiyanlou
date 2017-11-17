@@ -26,11 +26,13 @@ def taxed_salary(salary,social_taxs,tax_payable):
          salary=salary-social_taxs-(tax_payable*0.35-5505)
       elif tax_payable>80000 :
          salary=salary-social_taxs-(tax_payable*0.45-13505)
+      else:
+         salary=salary-social_taxs
       return salary
 
       
 if __name__=="__main__":
-   hr_dict={}
+
    if len(sys.argv)==1:
       print("parameter Error")
    else:
@@ -39,16 +41,15 @@ if __name__=="__main__":
          try:
             id_salist=arg.split(':')         
             if len(id_salist)==2:
-              salary=int(id_salist[1])
+              salary=int(float(id_salist[1]))
               social_tax=social_taxs(salary)
               tax_pay=tax_payable(salary,social_tax)           
               ta_salary=taxed_salary(salary,social_tax,tax_pay)
-              hr_dict[id_salist[0]]=ta_salary           
+              print(id_salist[0]+":%.2f"%ta_salary)          
             else:
               print("Parameter Error")
          except:
             print("Parameter Error")
-      if hr_dict!=None:
-        for h in hr_dict:
-           print(h+":%.2f"%hr_dict[h]) 
+      
+            
    
