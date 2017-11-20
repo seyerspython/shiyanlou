@@ -1,4 +1,4 @@
-#!/usr/bin/evn python3
+#!/usr/bin/env python3
 import sys
 import csv
 import os
@@ -127,13 +127,9 @@ if __name__=='__main__':
             configfile=args[args.index('-c')+1]
             userdatefile=args[args.index('-d')+1]
             outputfile=args[args.index('-o')+1]
-            if os.path.isfile(configfile) and os.path.isfile(userdatefile) and os.path.isfile(outputfile) :
-                config=Config(configfile)             
-                userdata=UserData(userdatefile)
-                userdata.calculator()
-                print(os.path.split(userdatefile))
-                userdata.dumptofile(outputfile)
-            else:
-                print("Parameter Error")
-                exit()
-        
+            config=Config(configfile)             
+            userdata=UserData(userdatefile)
+            userdata.calculator()
+                
+            userdata.dumptofile(outputfile)
+                    
