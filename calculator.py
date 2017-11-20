@@ -9,8 +9,11 @@ class Config(object):
         try:
             with open(configfile) as file:
                 for line in file:
-                    cf_line=line.split('=')
-                    self._config[cf_line[0].strip(' ')]=float(cf_line[1])
+                    try:
+                        cf_line=line.split('=')
+                        self._config[cf_line[0].strip(' ')]=float(cf_line[1])
+                    except:
+                        print("Config Error")
         except IOError:
              print("Config File not found or not accessiable")
     def get_config(self,key_name):
@@ -43,20 +46,27 @@ class UserData(object):
             with open(userdatafile) as csvfile:
                 reader=csv.reader(csvfile) 
                 for line in reader:
-                    self.userdata[line[0].strip(' ')]=int(float(line[1]))
+                    try:
+                        self.userdata[line[0].strip(' ')]=int(float(line[1]))
+                    except:
+                        print("Userdata Error")
+                        exit()
         except IOError:
             print("User salary File not found or not accessiable")
             
     ##税后工资计算函数         
     def calculator(self):
         for ud in self.userdata:
-            salary=self.userdata[ud]
-            scial=self.scial_tax(salary)
-            tax_pay_able=self.tax_payable(salary,scial)
-            tax=self.tax_rate(tax_pay_able)
-            taxed_salary=salary-scial-tax
-            single_salary=[ud,salary,'{:.2f}'.format(scial),tax,taxed_salary]
-            self.salary_list.append(single_salary)
+            try:
+                salary=self.userdata[ud]
+                scial=self.scial_tax(salary)
+                tax_pay_able=self.tax_payable(salary,scial)
+                tax=self.tax_rate(tax_pay_able)
+                taxed_salary=salary-scial-tax
+                single_salary=[ud,salary,'{:.2f}'.format(scial),'{:.2f}'.format(tax),'{:.2f}'.format(taxed_salary)]
+                self.salary_list.append(single_salary)
+            except:
+                print("Userdate Error")
            
             
             
@@ -100,37 +110,30 @@ class UserData(object):
     def dumptofile(self,outputfile):
         for row in self.salary_list:
             try:            
-                with open(outputfile,'a') as csvfile:                
-                    writer=csv.writer(csvfile)
-                    writer.writerow(row)
+                with open(outputfile,'a') as csvfile:
+                    try:                
+                        writer=csv.writer(csvfile)
+                        writer.writerow(row)
+                    except:
+                        print("Writer Error") 
             except IOError:
                 print("Gongzi File is not found or not accessiable")
             
 ##主程序
 if __name__=='__main__':
     if len(sys.argv)>0 :
-        try:
+        
             args=sys.argv[1:]
             configfile=args[args.index('-c')+1]
             userdatefile=args[args.index('-d')+1]
             outputfile=args[args.index('-o')+1]
-        except:
-            print("Paremeter Error")
-
-        if os.path.isfile(configfile):
-            config=Config(configfile)
-        else:
-            print("Cfg File name Error")
-            exit()
-        if os.path.isfile(userdatefile): 
-            userdata=UserData(userdatefile)
-            userdata.calculator()
-            print(os.path.split(userdatefile)[-2:])
-        else:
-            print("User salary File name Error")
-            exit()
-        if os.path.isfile(outputfile) :     
-            userdata.dumptofile(outputfile)
-        else:
-            print("Gongzi File name Error")
+            if os.path.isfile(configfile) and os.path.isfile(userdatefile) and os.path.isfile(outputfile) :
+                config=Config(configfile)             
+                userdata=UserData(userdatefile)
+                userdata.calculator()
+                print(os.path.split(userdatefile))
+                userdata.dumptofile(outputfile)
+            else:
+                print("Parameter Error")
+                exit()
         
