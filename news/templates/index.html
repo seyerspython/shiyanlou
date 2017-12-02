@@ -6,7 +6,7 @@
 <body>
 	{% for article in article_list%}
 		<div>
-		<p>{{ article.title }}</p>
+		<p><a href='files/{{article.id}}'>{{ article.title }}</a></p>
 		</div>
 	{% endfor %}
 

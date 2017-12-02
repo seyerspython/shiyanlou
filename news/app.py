@@ -17,10 +17,10 @@ class File(db.Model):
 	category=db.relationship('Category')
 	content=db.Column(db.Text)
 
-	def __init__(self,title,created_time,category_id,content):
+	def __init__(self,title,created_time,category,content):
 		self.title=title
 		self.created_time=created_time
-		self.category_id=category_id
+		self.category=category
 		self.content=content
 
 	def __repr__(self):
@@ -38,20 +38,21 @@ class Category(db.Model):
 @app.route('/')
 def index():
 	article_list=[]
-	path='/home/shiyanlou/files'
-	file_list=os.listdir(path)
-	for file in file_list:
-		file=os.path.join(path,file)
-		article_list.append(read_file(file))
-	return render_template('index.html',article_list=article_list)
+	
+	file_list=db.session.query(File).all()
+	
+	return render_template('index.html',article_list=file_list)
 
-@app.route('/files/<filename>')
-def file(filename):
-	filename=os.path.join('/home/shiyanlou/files',filename+'.json')
-	if os.path.exists(filename):		
-		article=read_file(filename)
-		return render_template('file.html',article=article)
-	else:
+@app.route('/files/<file_id>')
+def file(file_id):
+	filename=db.session.query(File).filter(File.id==file_id).first()
+
+	if filename!=None:		
+		article=filename
+		category=db.session.query(Category).filter(Category.id==filename.category_id).first()
+
+		return render_template('file.html',article=article,categorys=category.name)
+	else:		
 		return render_template('404.html')
 
 @app.errorhandler(404)
