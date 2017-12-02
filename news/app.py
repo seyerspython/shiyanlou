@@ -2,12 +2,14 @@
 import os,json
 from flask import Flask,render_template,redirect,url_for
 from flask_sqlalchemy import SQLAlchemy
-
+from pymongo import MongoClient
 
 
 app=Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='mysql://root@localhost/shiyanlou'
 db=SQLAlchemy(app)
+client=MongoClient('127.0.0.1',27017)
+mgdb=client.shiyanlou
 
 class File(db.Model):
 	id=db.Column(db.Integer,primary_key=True)
@@ -25,6 +27,21 @@ class File(db.Model):
 
 	def __repr__(self):
 		return '<File %r>' % self.title
+
+	def add_tag(self,tag_name):
+		if mgdb.tag.find({'name':tag_name}):
+			return print('Add tag error,Tag already in')
+		else:
+			mgdb.tag.insert_one({'title_id':self.id,'name':tag_name})
+
+	def remove_tag(self,tag_name):
+		mgdb.tag.delete_one({'title_id':self.id,'name':tag_name})
+
+	@property
+	def tags(self):
+		tag_list=mgdb.tag.find({'title_id':self.id})
+		return tag_list
+
 
 class Category(db.Model):
 	id=db.Column(db.Integer,primary_key=True)

@@ -6,7 +6,8 @@
 <body>
 	{% for article in article_list%}
 		<div>
-		<p><a href='files/{{article.id}}'>{{ article.title }}</a></p>
+		<p><a href='files/{{article.id}}'>{{ article.title }} </a></p>
+		<p>{% for tag in article.tags%} {{tag.name}} {% endfor %}</p>
 		</div>
 	{% endfor %}
 
