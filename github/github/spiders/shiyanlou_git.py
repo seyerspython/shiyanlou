@@ -19,11 +19,12 @@ class ShiyanlouGitSpider(scrapy.Spider):
 			
 			course_url=response.urljoin(li.xpath('.//div[contains(@class,"d-inline-block")]/h3/a/@href').extract_first())
 			request=scrapy.Request(course_url,callback=self.parse_course)
+			request.meta['item']=item
 			yield request
 
 	def parse_course(self,response):
 		item=response.meta['item']
-		item['commits']=response.xpath('(//ul[@class="numbers-summary"]/li)[1]/a/span/text()').extract_first()
-		item['branches']=response.xpath('(//ul[@class="numbers-summary"]/li)[2]/a/span/text()').extract_first()
-		item['releases']=response.xpath('(//ul[@class="numbers-summary"]/li)[3]/a/span/text()').extract_first()
+		item['commits']=response.xpath('(//ul[@class="numbers-summary"]/li)[1]/a/span/text()').re_first('\d+')
+		item['branches']=response.xpath('(//ul[@class="numbers-summary"]/li)[2]/a/span/text()').re_first('\d+')
+		item['releases']=response.xpath('(//ul[@class="numbers-summary"]/li)[3]/a/span/text()').re_first('\d+')
 		yield item
