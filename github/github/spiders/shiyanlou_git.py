@@ -13,8 +13,17 @@ class ShiyanlouGitSpider(scrapy.Spider):
 
 	def parse(self,response):
 		for li in response.xpath('//li[contains(@class,"border-bottom")]'):
-			item=GithubItem({
-				'name':li.xpath('.//div[contains(@class,"d-inline-block")]/h3/a/text()').re_first('\s+(.+)'),
-				'update_time':li.xpath('.//div[contains(@class,"text-gray mt-2")]/relative-time/@datetime').extract_first()
-			})
-			yield item
+			item=GithubItem()
+			item['name']=li.xpath('.//div[contains(@class,"d-inline-block")]/h3/a/text()').re_first('\s+(.+)'),
+			item['update_time']=li.xpath('.//div[contains(@class,"text-gray mt-2")]/relative-time/@datetime').extract_first()
+			
+			course_url=response.urljoin(li.xpath('.//div[contains(@class,"d-inline-block")]/h3/a/@href').extract_first())
+			request=scrapy.Request(course_url,callback=self.parse_course)
+			yield request
+
+	def parse_course(self,response):
+		item=response.meta['item']
+		item['commits']=response.xpath('(//ul[@class="numbers-summary"]/li)[1]/a/span/text()').extract_first()
+		item['branches']=response.xpath('(//ul[@class="numbers-summary"]/li)[2]/a/span/text()').extract_first()
+		item['releases']=response.xpath('(//ul[@class="numbers-summary"]/li)[3]/a/span/text()').extract_first()
+		yield item
